@@ -2,8 +2,7 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <title>文字轉換器 + QR Code</title>
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+  <title>文字轉換器</title>
   <style>
     body {
       font-family: Arial;
@@ -27,36 +26,25 @@
       font-size: 16px;
       padding: 8px;
     }
-    select, button {
+    select {
       font-size: 16px;
-      margin: 10px 5px 20px 0;
-      padding: 6px 12px;
+      margin-bottom: 10px;
     }
     label {
       font-weight: bold;
     }
-    #qrCanvas {
-      display: none;
-      margin-top: 30px;
-      margin-left: auto;
-      margin-right: auto;
-      width: 256px;
-      height: 256px;
-    }
   </style>
 </head>
 <body>
-  <h1>文字加解密轉換工具 + QR Code</h1>
+  <h1>文字加解密轉換工具</h1>
 
   <label for="mode">選擇轉換方式：</label>
   <select id="mode" onchange="handleConversion()">
     <option value="base64">Base64</option>
     <option value="hex">十六進位 (Hex)</option>
     <option value="url">URL Encoding</option>
-    <option value="ascii">ASCII (十進位碼)</option>
+    <option value="ascii">ASCII (十進位碼)</option> <!-- ✅ 新增選項 -->
   </select>
-
-  <button onclick="generateQRFromPlain()">從原文產生 QRCode</button>
 
   <div class="container">
     <div class="block">
@@ -69,27 +57,17 @@
     </div>
   </div>
 
-  <div id="qrContainer" style="text-align:center; margin-top: 30px;"></div>
-
   <script>
     let lastInput = "";
 
-    document.getElementById("cipherText").addEventListener("input", () => {
-      lastInput = "cipher";
-      handleConversion();
-    });
-
-    document.getElementById("plainText").addEventListener("input", () => {
-      lastInput = "plain";
-      handleConversion();
-    });
+    document.getElementById("cipherText").addEventListener("input", () => lastInput = "cipher");
+    document.getElementById("plainText").addEventListener("input", () => lastInput = "plain");
 
     function handleFromCipher() {
       const cipher = document.getElementById("cipherText").value;
       const mode = document.getElementById("mode").value;
       const plain = decode(cipher, mode);
       document.getElementById("plainText").value = plain ?? "";
-      document.getElementById("qrCanvas").style.display = "none";
     }
 
     function handleFromPlain() {
@@ -97,13 +75,12 @@
       const mode = document.getElementById("mode").value;
       const cipher = encode(plain, mode);
       document.getElementById("cipherText").value = cipher ?? "";
-      document.getElementById("qrCanvas").style.display = "none";
     }
 
     function handleConversion() {
       if (lastInput === "cipher") {
         handleFromCipher();
-      } else {
+      } else if (lastInput === "plain") {
         handleFromPlain();
       }
     }
@@ -139,58 +116,6 @@
         return "⚠️ 無法解碼";
       }
     }
-
-    function generateQR(text) {
-      const container = document.getElementById("qrContainer");
-      container.innerHTML = ""; // 清除舊的
-    
-      if (!text || !text.trim()) {
-        return;
-      }
-    
-      const canvas = document.createElement("canvas");
-      container.appendChild(canvas);
-    
-      QRCode.toCanvas(canvas, text.trim(), {
-        errorCorrectionLevel: 'L',
-        scale: 4,
-        margin: 1
-      }, function (error) {
-        if (error) {
-          console.error(error);
-          container.innerHTML = "<p style='color:red;'>⚠️ 無法產生 QR Code</p>";
-        }
-      });
-    }
-      
-
-    QRCode.toCanvas(canvas, text.trim(), {
-      errorCorrectionLevel: 'L',
-      scale: 4,
-      margin: 1
-    }, function (error) {
-      if (error) {
-        console.error(error);
-        canvas.style.display = "none";
-      } else {
-        canvas.style.display = "block";  // ✅ 確保成功時會顯示出來
-      }
-    });
-
-    }
-
-    function generateQRFromPlain() {
-      const plain = document.getElementById("plainText").value.trim();
-      if (plain) {
-        generateQR(plain);
-      } else {
-        document.getElementById("qrCanvas").style.display = "none";
-      }
-    }
-
-
-    // 預設觸發
-    handleConversion();
   </script>
 </body>
 </html>
