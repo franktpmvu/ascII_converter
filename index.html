@@ -146,18 +146,19 @@
       }
       
 
-      QRCode.toCanvas(canvas, text.trim(), {
-        errorCorrectionLevel: 'L', // 最低容錯 → 最簡單
-        scale: 4,
-        margin: 1
-      }, function (error) {
-        if (error) {
-          console.error(error);
-          canvas.style.display = "none";
-        } else {
-          canvas.style.display = "block";
-        }
-      });
+    QRCode.toCanvas(canvas, text.trim(), {
+      errorCorrectionLevel: 'L',
+      scale: 4,
+      margin: 1
+    }, function (error) {
+      if (error) {
+        console.error(error);
+        canvas.style.display = "none";
+      } else {
+        canvas.style.display = "block";  // ✅ 確保成功時會顯示出來
+      }
+    });
+
     }
 
     function generateQRFromPlain() {
