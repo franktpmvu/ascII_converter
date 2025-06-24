@@ -43,6 +43,7 @@
     <option value="base64">Base64</option>
     <option value="hex">十六進位 (Hex)</option>
     <option value="url">URL Encoding</option>
+    <option value="ascii">ASCII (十進位碼)</option> <!-- ✅ 新增選項 -->
   </select>
 
   <div class="container">
@@ -57,7 +58,7 @@
   </div>
 
   <script>
-    let lastInput = ""; // 記錄最近編輯的區域（"cipher" 或 "plain"）
+    let lastInput = "";
 
     document.getElementById("cipherText").addEventListener("input", () => lastInput = "cipher");
     document.getElementById("plainText").addEventListener("input", () => lastInput = "plain");
@@ -92,6 +93,8 @@
           return [...text].map(c => c.charCodeAt(0).toString(16).padStart(2, '0')).join('');
         } else if (mode === "url") {
           return encodeURIComponent(text);
+        } else if (mode === "ascii") {
+          return [...text].map(c => c.charCodeAt(0).toString()).join(' ');
         }
       } catch {
         return "⚠️ 無法編碼";
@@ -106,6 +109,8 @@
           return text.match(/.{1,2}/g).map(byte => String.fromCharCode(parseInt(byte, 16))).join('');
         } else if (mode === "url") {
           return decodeURIComponent(text);
+        } else if (mode === "ascii") {
+          return text.trim().split(/\s+/).map(code => String.fromCharCode(parseInt(code))).join('');
         }
       } catch {
         return "⚠️ 無法解碼";
