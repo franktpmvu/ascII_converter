@@ -70,8 +70,15 @@
   <script>
     let lastInput = "";
 
-    document.getElementById("cipherText").addEventListener("input", () => lastInput = "cipher");
-    document.getElementById("plainText").addEventListener("input", () => lastInput = "plain");
+    document.getElementById("cipherText").addEventListener("input", () => {
+      lastInput = "cipher";
+      handleConversion();
+    });
+
+    document.getElementById("plainText").addEventListener("input", () => {
+      lastInput = "plain";
+      handleConversion();
+    });
 
     function handleFromCipher() {
       const cipher = document.getElementById("cipherText").value;
@@ -98,13 +105,30 @@
 
     function handleConversion() {
       const mode = document.getElementById("mode").value;
+      const plain = document.getElementById("plainText").value;
+      const cipher = document.getElementById("cipherText").value;
+
       if (mode === "qr") {
-        generateQR(document.getElementById("plainText").value);
+        // 判斷要從哪邊取內容產 QR
+        if (lastInput === "cipher" && cipher.trim()) {
+          const decoded =
+            decode(cipher, "base64") ||
+            decode(cipher, "hex") ||
+            decode(cipher, "url") ||
+            decode(cipher, "ascii");
+          generateQR(decoded ?? "");
+        } else if (plain.trim()) {
+          generateQR(plain.trim());
+        } else {
+          document.getElementById("qrCanvas").style.display = "none";
+        }
         return;
       }
+
+      // 非 QR 模式，正常雙向轉換
       if (lastInput === "cipher") {
         handleFromCipher();
-      } else if (lastInput === "plain") {
+      } else {
         handleFromPlain();
       }
     }
@@ -143,13 +167,13 @@
 
     function generateQR(text) {
       const canvas = document.getElementById("qrCanvas");
-      if (!text.trim()) {
+      if (!text || !text.trim()) {
         canvas.style.display = "none";
         return;
       }
 
-      QRCode.toCanvas(canvas, text, {
-        errorCorrectionLevel: 'L', // 最低容錯，密度最低
+      QRCode.toCanvas(canvas, text.trim(), {
+        errorCorrectionLevel: 'L',
         scale: 4,
         margin: 1
       }, function (error) {
@@ -162,7 +186,7 @@
       });
     }
 
-    // 預設啟動轉換
+    // 初始顯示
     handleConversion();
   </script>
 </body>
