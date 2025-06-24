@@ -27,9 +27,10 @@
       font-size: 16px;
       padding: 8px;
     }
-    select {
+    select, button {
       font-size: 16px;
-      margin-bottom: 10px;
+      margin: 10px 5px 20px 0;
+      padding: 6px 12px;
     }
     label {
       font-weight: bold;
@@ -51,8 +52,9 @@
     <option value="hex">十六進位 (Hex)</option>
     <option value="url">URL Encoding</option>
     <option value="ascii">ASCII (十進位碼)</option>
-    <option value="qr">QR Code（原文轉換為 QR）</option>
   </select>
+
+  <button onclick="generateQRFromPlain()">從原文產生 QRCode</button>
 
   <div class="container">
     <div class="block">
@@ -83,7 +85,6 @@
     function handleFromCipher() {
       const cipher = document.getElementById("cipherText").value;
       const mode = document.getElementById("mode").value;
-      if (mode === "qr") return;
       const plain = decode(cipher, mode);
       document.getElementById("plainText").value = plain ?? "";
       document.getElementById("qrCanvas").style.display = "none";
@@ -92,40 +93,12 @@
     function handleFromPlain() {
       const plain = document.getElementById("plainText").value;
       const mode = document.getElementById("mode").value;
-
-      if (mode === "qr") {
-        generateQR(plain);
-        return;
-      }
-
       const cipher = encode(plain, mode);
       document.getElementById("cipherText").value = cipher ?? "";
       document.getElementById("qrCanvas").style.display = "none";
     }
 
     function handleConversion() {
-      const mode = document.getElementById("mode").value;
-      const plain = document.getElementById("plainText").value;
-      const cipher = document.getElementById("cipherText").value;
-
-      if (mode === "qr") {
-        // 判斷要從哪邊取內容產 QR
-        if (lastInput === "cipher" && cipher.trim()) {
-          const decoded =
-            decode(cipher, "base64") ||
-            decode(cipher, "hex") ||
-            decode(cipher, "url") ||
-            decode(cipher, "ascii");
-          generateQR(decoded ?? "");
-        } else if (plain.trim()) {
-          generateQR(plain.trim());
-        } else {
-          document.getElementById("qrCanvas").style.display = "none";
-        }
-        return;
-      }
-
-      // 非 QR 模式，正常雙向轉換
       if (lastInput === "cipher") {
         handleFromCipher();
       } else {
@@ -173,7 +146,7 @@
       }
 
       QRCode.toCanvas(canvas, text.trim(), {
-        errorCorrectionLevel: 'L',
+        errorCorrectionLevel: 'L', // 最低容錯 → 最簡單
         scale: 4,
         margin: 1
       }, function (error) {
@@ -186,7 +159,12 @@
       });
     }
 
-    // 初始顯示
+    function generateQRFromPlain() {
+      const plain = document.getElementById("plainText").value;
+      generateQR(plain);
+    }
+
+    // 預設觸發
     handleConversion();
   </script>
 </body>
