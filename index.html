@@ -69,7 +69,7 @@
     </div>
   </div>
 
-  <canvas id="qrCanvas"></canvas>
+  <div id="qrContainer" style="text-align:center; margin-top: 30px;"></div>
 
   <script>
     let lastInput = "";
@@ -141,11 +141,27 @@
     }
 
     function generateQR(text) {
-      const canvas = document.getElementById("qrCanvas");
+      const container = document.getElementById("qrContainer");
+      container.innerHTML = ""; // 清除舊的
+    
       if (!text || !text.trim()) {
-        canvas.style.display = "none";
         return;
       }
+    
+      const canvas = document.createElement("canvas");
+      container.appendChild(canvas);
+    
+      QRCode.toCanvas(canvas, text.trim(), {
+        errorCorrectionLevel: 'L',
+        scale: 4,
+        margin: 1
+      }, function (error) {
+        if (error) {
+          console.error(error);
+          container.innerHTML = "<p style='color:red;'>⚠️ 無法產生 QR Code</p>";
+        }
+      });
+    }
       
 
     QRCode.toCanvas(canvas, text.trim(), {
